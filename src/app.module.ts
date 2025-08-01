@@ -1,9 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { AuthorsModule } from './modules/authors/authors.module';
+import { BooksModule } from './modules/books/books.module';
+import { MembersModule } from './modules/members/members.module';
+import { Member } from './modules/members/members.entity';
+import { Book } from './modules/books/books.entity';
+
 
 @Module({
-  imports: [],
+  imports: [MembersModule, BooksModule, AuthorsModule, TypeOrmModule.forRoot({
+    type: 'sqlite',
+    database: 'library.db',
+    entities: [Member, Book],
+    synchronize: true,
+  })],
   controllers: [AppController],
   providers: [AppService],
 })

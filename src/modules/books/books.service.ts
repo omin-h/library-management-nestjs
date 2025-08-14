@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './books.entity';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @Injectable()
 export class BooksService {
@@ -15,8 +16,18 @@ export class BooksService {
     return this.booksRepository.save(newBook);
   }
 
-  findAll(): Promise<Book[]> {
-    return this.booksRepository.find();
+  async findAll(
+    { page, limit }: PaginationQueryDto,
+  ): Promise<{ data: Book[]; total: number; page: number; limit: number }> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.booksRepository.findAndCount({
+      skip,
+      take: limit,
+      order: { id: 'ASC' },
+    });
+
+    return { data, total, page, limit };
   }
 
   async findOne(id: number): Promise<Book> {

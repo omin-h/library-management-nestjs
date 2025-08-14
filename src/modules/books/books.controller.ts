@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, Logger, Query } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Book } from './books.entity';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @Controller('books')
 export class BooksController {
@@ -21,10 +22,14 @@ export class BooksController {
   }
 
   @Get()
-  async findAll(): Promise<Book[]> {
-    const books = await this.booksService.findAll();
-    this.logger.log(`Fetched ${books.length} book(s)`);
-    return books;
+  async findAll(
+    @Query() pagination: PaginationQueryDto,
+  ): Promise<{ data: Book[]; total: number; page: number; limit: number }> {
+    const result = await this.booksService.findAll(pagination);
+    this.logger.log(
+      `Fetched ${result.data.length} book(s) (page ${result.page}, limit ${result.limit}, total ${result.total})`,
+    );
+    return result;
   }
 
   @Get(':id')

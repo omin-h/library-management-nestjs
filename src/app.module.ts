@@ -15,7 +15,7 @@ import { Book } from './modules/books/books.entity';
 @Module({
   imports: [MembersModule, BooksModule, AuthorsModule, TypeOrmModule.forRoot({
     type: 'sqlite',
-    database: 'library.db',
+    database: 'src/config/library.db',
     entities: [Author, Member, Book],
     synchronize: true,
   })],

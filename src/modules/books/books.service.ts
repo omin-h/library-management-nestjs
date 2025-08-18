@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './books.entity';
@@ -11,7 +11,11 @@ export class BooksService {
     private booksRepository: Repository<Book>,
   ) {}
 
-  create(book: Omit<Book, 'id'>): Promise<Book> {
+  async create(book: Omit<Book, 'id'>): Promise<Book> {
+    const existing = await this.booksRepository.findOneBy({ isbn: book.isbn });
+    if (existing) {
+      throw new BadRequestException('ISBN must be unique');
+    }
     const newBook = this.booksRepository.create(book);
     return this.booksRepository.save(newBook);
   }

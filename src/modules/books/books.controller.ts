@@ -1,8 +1,12 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, Logger, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { BooksService } from './books.service';
 import { Book } from './books.entity';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
+@ApiTags('books')
 @Controller('books')
 export class BooksController {
   private readonly logger = new Logger(BooksController.name);
@@ -11,7 +15,10 @@ export class BooksController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() book: Omit<Book, 'id'>): Promise<Book> {
+  @ApiOperation({ summary: 'Create a new book' })
+  @ApiResponse({ status: 201, description: 'Book created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid input or duplicate ISBN.' })
+  async create(@Body() book: CreateBookDto): Promise<Book> {
     if (!book.title || !book.author || !book.isbn || !book.publishedYear) {
       this.logger.warn('Create failed: Invalid data sent');
       throw new BadRequestException('title, author, isbn, and publishedYear are required');
@@ -22,6 +29,10 @@ export class BooksController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all books with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: 200, description: 'List of books.' })
   async findAll(
     @Query() pagination: PaginationQueryDto,
   ): Promise<{ data: Book[]; total: number; page: number; limit: number }> {
@@ -33,6 +44,10 @@ export class BooksController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a book by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Book found.' })
+  @ApiResponse({ status: 404, description: 'Book not found.' })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Book> {
     try {
       const book = await this.booksService.findOne(id);
@@ -45,9 +60,13 @@ export class BooksController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update a book by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Book updated.' })
+  @ApiResponse({ status: 404, description: 'Book not found.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateData: Partial<Book>
+    @Body() updateData: UpdateBookDto
   ): Promise<Book> {
     try {
       const updated = await this.booksService.update(id, updateData);
@@ -60,6 +79,10 @@ export class BooksController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a book by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 204, description: 'Book deleted.' })
+  @ApiResponse({ status: 404, description: 'Book not found.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     try {

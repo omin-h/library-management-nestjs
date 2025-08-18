@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './books.entity';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -11,7 +13,7 @@ export class BooksService {
     private booksRepository: Repository<Book>,
   ) {}
 
-  async create(book: Omit<Book, 'id'>): Promise<Book> {
+  async create(book: CreateBookDto): Promise<Book> {
     const existing = await this.booksRepository.findOneBy({ isbn: book.isbn });
     if (existing) {
       throw new BadRequestException('ISBN must be unique');
@@ -40,7 +42,7 @@ export class BooksService {
     return book;
   }
 
-  async update(id: number, updateData: Partial<Book>): Promise<Book> {
+  async update(id: number, updateData: UpdateBookDto): Promise<Book> {
     await this.booksRepository.update(id, updateData);
     return this.findOne(id);
   }

@@ -84,23 +84,26 @@ describe('BooksController', () => {
     });
 
     describe('findAll', () => {
+        const pagination = { page: 1, limit: 10 };
+
         it('should return an array of books', async () => {
-            const mockBooks = [mockBook];
-            mockBooksService.findAll.mockResolvedValue(mockBooks);
+            const mockBooksResult = { data: [mockBook], total: 1, page: 1, limit: 10 };
+            mockBooksService.findAll.mockResolvedValue(mockBooksResult);
 
-            const result = await controller.findAll();
+            const result = await controller.findAll(pagination);
 
-            expect(service.findAll).toHaveBeenCalled();
-            expect(result).toEqual(mockBooks);
+            expect(service.findAll).toHaveBeenCalledWith(pagination);
+            expect(result).toEqual(mockBooksResult);
         });
 
         it('should return empty array when no books exist', async () => {
-            mockBooksService.findAll.mockResolvedValue([]);
+            const mockBooksResult = { data: [], total: 0, page: 1, limit: 10 };
+            mockBooksService.findAll.mockResolvedValue(mockBooksResult);
 
-            const result = await controller.findAll();
+            const result = await controller.findAll(pagination);
 
-            expect(service.findAll).toHaveBeenCalled();
-            expect(result).toEqual([]);
+            expect(service.findAll).toHaveBeenCalledWith(pagination);
+            expect(result).toEqual(mockBooksResult);
         });
     });
 
@@ -123,9 +126,15 @@ describe('BooksController', () => {
     });
 
     describe('update', () => {
+        const updateData = {
+            title: 'Updated Title',
+            author: 'Test Author',
+            isbn: '1234567890',
+            publishedYear: 2023,
+        };
+        const updatedBook = { ...mockBook, ...updateData };
+
         it('should update a book successfully', async () => {
-            const updateData = { title: 'Updated Title' };
-            const updatedBook = { ...mockBook, ...updateData };
             mockBooksService.update.mockResolvedValue(updatedBook);
 
             const result = await controller.update(1, updateData);
@@ -135,7 +144,6 @@ describe('BooksController', () => {
         });
 
         it('should throw NotFoundException when updating non-existent book', async () => {
-            const updateData = { title: 'Updated Title' };
             mockBooksService.update.mockRejectedValue(new NotFoundException('Book not found'));
 
             await expect(controller.update(999, updateData)).rejects.toThrow(NotFoundException);

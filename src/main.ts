@@ -8,8 +8,8 @@ async function bootstrap() {
 
   // Swagger API documentation
   const config = new DocumentBuilder()
-    .setTitle('Library API')
-    .setDescription('The library API description')
+    .setTitle('Library Management System API')
+    .setDescription('The library management system API documentation for all controllers')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);

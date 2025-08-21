@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsInt } from 'class-validator';
 
 export class CreateMemberDto {
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 100 })
   @IsInt()
   @IsNotEmpty()
   id: number;

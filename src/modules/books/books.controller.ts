@@ -90,14 +90,15 @@ export class BooksController {
 
   @ApiOperation({ summary: 'Delete a book by ID' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 204, description: 'Book deleted.' })
+  @ApiResponse({ status: 200, description: 'Book deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Book not found.' })
   
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise< {message: string} > {
     try {
       await this.booksService.remove(id);
       this.logger.log(`Book deleted: ${id}`);
+      return { message: `Book ${id} deleted successfully.` };
     } catch (error) {
       this.logger.warn(`Delete failed: Book ${id} not found`);
       throw error;

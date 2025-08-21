@@ -93,14 +93,14 @@ export class MembersController {
   @Delete(':id')
 
   @ApiOperation({ summary: 'Delete a member by ID' })
-  @ApiResponse({ status: 204, description: 'Member deleted successfully.' })
+  @ApiResponse({ status: 200, description: 'Member deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Member not found.' })
-
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
     try {
       await this.membersService.remove(id);
       this.logger.log(`Member deleted: ${id}`);
+      return { message: `Member ${id} deleted successfully.` };
     } catch (error) {
       this.logger.warn(`Delete failed: Member ${id} not found`);
       throw error;

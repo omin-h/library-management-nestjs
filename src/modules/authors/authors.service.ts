@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Author } from './authors.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -15,19 +16,30 @@ export class AuthorsService {
     return this.authorsRepository.save(newAuthor);
   }
 
-  findAll(): Promise<Author[]> {
-    return this.authorsRepository.find();
-  }
+  async findAll(
+      { page, limit }: PaginationQueryDto,
+    ): Promise<{ data: Author[]; total: number; page: number; limit: number }> {
+      const skip = (page - 1) * limit;
 
-  async findOne(id: number): Promise<Author> {
-    const author = await this.authorsRepository.findOneBy({ id });
-    if (!author) throw new NotFoundException('Author not found');
-    return author;
+      const [data, total] = await this.authorsRepository.findAndCount({
+        skip,
+        take: limit,
+        order: { id: 'ASC' },
+      });
+  
+      return { data, total, page, limit };
+  }
+  
+
+  async findOne(id: number): Promise<Author | null> {
+    return await this.authorsRepository.findOneBy({ id });
   }
 
   async update(id: number, updateData: Partial<Author>): Promise<Author> {
     await this.authorsRepository.update(id, updateData);
-    return this.findOne(id);
+    const updated = await this.findOne(id);
+    if (!updated) throw new NotFoundException('Author not found');
+    return updated;
   }
 
   async remove(id: number): Promise<void> {

@@ -1,13 +1,52 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
 import SendButton from './SendButton'
+import socket from '../services/socket'
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([
     { id: 1, text: 'Welcome to the chat!', time: new Date().toLocaleTimeString() },
   ])
   const [input, setInput] = useState('')
+  const [connected, setConnected] = useState(false)
+  const connectedRef = useRef(false)
+
+  useEffect(() => {
+    socket.connect() // open the connection to the server
+
+    const onConnect = () => {
+      setConnected(true)
+      connectedRef.current = true
+    }
+    const onDisconnect = () => {
+      setConnected(false)
+      connectedRef.current = false
+    }
+    const onMessage = (msg) => {
+      if (!msg || !msg.text) return
+
+      // if a message with same id already exists, update it (avoid duplicate)
+      setMessages((prev) => {
+        const exists = prev.some((m) => m.id === msg.id)
+        if (exists) {
+          return prev.map((m) => (m.id === msg.id ? { ...m, ...msg } : m))
+        }
+        return [...prev, msg]
+      })
+    }
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+    socket.on('message', onMessage)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+      socket.off('message', onMessage)
+      socket.disconnect() // close when component unmounts
+    }
+  }, [])
 
   function handleSend() {
     if (!input.trim()) return
@@ -16,9 +55,14 @@ export default function ChatWindow() {
       text: input.trim(),
       time: new Date().toLocaleTimeString(),
     }
-    setMessages((m) => [...m, msg])
+    setMessages((m) => [...m, msg]) // optimistic local add
     setInput('')
-    // later: emit msg via socket here
+
+    if (connectedRef.current) {
+      socket.emit('message', msg) // send to server
+    } else {
+      console.warn('Socket not connected - message sent locally only')
+    }
   }
 
   return (
@@ -32,8 +76,9 @@ export default function ChatWindow() {
       overflow: 'hidden',
       boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
     }}>
-      <div style={{ padding: 12, borderBottom: '1px solid #eee', background: '#fafafa' }}>
+      <div style={{ padding: 12, borderBottom: '1px solid #eee', background: '#fafafa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <strong>Chat</strong>
+        <span style={{ fontSize: 12, color: connected ? '#10b981' : '#ef4444' }}>{connected ? 'online' : 'offline'}</span>
       </div>
 
       <div style={{ flex: 1, padding: 12, overflowY: 'auto', minHeight: 180 }}>

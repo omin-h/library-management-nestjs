@@ -28,8 +28,8 @@ export class ChatsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       fromSocket: client?.id ?? 'unknown',
     }
 
-    // broadcast to all clients
-    this.server.emit('message', msg)
+    // broadcast to all clients except sender
+    client.broadcast.emit('message', msg)
 
     // optional ack response
     return { status: 'ok' }

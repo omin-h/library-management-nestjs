@@ -26,14 +26,7 @@ export default function ChatWindow() {
     const onMessage = (msg) => {
       if (!msg || !msg.text) return
 
-      // if a message with same id already exists, update it (avoid duplicate)
-      setMessages((prev) => {
-        const exists = prev.some((m) => m.id === msg.id)
-        if (exists) {
-          return prev.map((m) => (m.id === msg.id ? { ...m, ...msg } : m))
-        }
-        return [...prev, msg]
-      })
+      setMessages((m) => [...m, msg])
     }
 
     socket.on('connect', onConnect)

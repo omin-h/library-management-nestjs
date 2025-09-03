@@ -84,49 +84,79 @@ export default function LlmPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 24,
-      background: '#fff'
-    }}>
-      <div style={{ width: '80%', maxWidth: 1200 }}>
-        <h1 style={{ textAlign: 'center', fontWeight: 500, marginBottom: 28 }}>
-          What are you working on?
-        </h1>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        // soft light gradient background
+        background: 'linear-gradient(180deg, #f8fbff 0%, #f3f7ff 50%, #ffffff 100%)',
+        fontFamily: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+        color: '#0f172a',
+      }}
+    >
+      <div
+        style={{
+          width: '86%',
+          maxWidth: 1000,
+        }}
+      >
+        <div
+          style={{
+            textAlign: 'center',
+            marginBottom: 28,
+          }}
+        >
+          <h1 style={{ margin: 0, fontWeight: 600, fontSize: 28 }}>What are you working on?</h1>
+          <p style={{ margin: '8px 0 0', color: '#475569' }}>
+            Ask anything — the AI will stream its reply in real time.
+          </p>
+        </div>
 
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <div style={{
-            flex: 1,
+        <div
+          style={{
             display: 'flex',
+            gap: 16,
             alignItems: 'center',
-            background: '#fff',
-            borderRadius: 999,
-            boxShadow: '0 6px 20px rgba(13, 14, 15, 0.06)',
-            padding: '12px 16px'
-          }}>
-            <button style={{
-              border: 'none', background: 'transparent', marginRight: 10, fontSize: 20, cursor: 'pointer'
-            }}>＋</button>
+            marginBottom: 18,
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              background: '#ffffff',
+              borderRadius: 999,
+              boxShadow: '0 6px 24px rgba(15, 23, 42, 0.06)',
+              padding: '12px 16px',
+              border: '1px solid rgba(15,23,42,0.04)',
+            }}
+          >
+           
 
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') send();
+              }}
               placeholder="Ask anything"
               style={{
                 flex: 1,
                 border: 'none',
                 outline: 'none',
                 fontSize: 18,
-                padding: '8px 6px'
+                padding: '8px 6px',
+                color: '#0f172a',
+                background: 'transparent',
               }}
             />
 
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-             
+              
 
               <button
                 onClick={send}
@@ -134,10 +164,12 @@ export default function LlmPage() {
                 style={{
                   borderRadius: 999,
                   border: 'none',
-                  padding: '10px 14px',
-                  background: streaming ? '#ddd' : '#7c3aed',
-                  color: '#fff',
-                  cursor: streaming ? 'not-allowed' : 'pointer'
+                  padding: '10px 16px',
+                  background: streaming ? 'linear-gradient(90deg,#e2e8f0,#f1f5f9)' : 'linear-gradient(90deg,#7c3aed,#5b21b6)',
+                  color: streaming ? '#475569' : '#fff',
+                  cursor: streaming ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                  boxShadow: streaming ? 'none' : '0 6px 18px rgba(124,58,237,0.18)',
                 }}
               >
                 {streaming ? 'Thinking…' : 'Ask'}
@@ -146,9 +178,34 @@ export default function LlmPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: 28, minHeight: 200, background: '#fafafa', padding: 18, borderRadius: 8 }}>
-          <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, color: '#0f172a' }}>
-            {response || (streaming ? 'Waiting for response...' : 'Responses will appear here')}
+        <div
+          style={{
+            marginTop: 12,
+            minHeight: 220,
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,250,255,0.8))',
+            padding: 20,
+            borderRadius: 12,
+            border: '1px solid rgba(15,23,42,0.04)',
+            boxShadow: '0 8px 30px rgba(15,23,42,0.04)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ color: '#334155', fontWeight: 600 }}>Response</div>
+            <div style={{ color: '#64748b', fontSize: 13 }}>
+              {streaming ? 'Streaming…' : 'Idle'}
+            </div>
+          </div>
+
+          <div
+            style={{
+              whiteSpace: 'pre-wrap',
+              lineHeight: 1.7,
+              color: '#727273ff',
+              fontSize: 16,
+              minHeight: 140,
+            }}
+          >
+            {response || (!streaming ? 'Responses will appear here' : 'Waiting for response...')}
           </div>
         </div>
       </div>

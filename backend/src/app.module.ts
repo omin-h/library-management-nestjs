@@ -12,12 +12,12 @@ import { Member } from './modules/members/members.entity';
 import { Book } from './modules/books/books.entity';
 
 import { ChatsModule } from './modules/chats/chats.module';
-
+import { LlmModule } from './modules/llm/llm.module';
 
 
 
 @Module({
-  imports: [MembersModule, BooksModule, AuthorsModule, ChatsModule, TypeOrmModule.forRoot({
+  imports: [MembersModule, BooksModule, AuthorsModule, ChatsModule, LlmModule, TypeOrmModule.forRoot({
     type: 'sqlite',
     database: 'src/config/library.db',
     entities: [Author, Member, Book],

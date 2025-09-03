@@ -1,10 +1,10 @@
 import React from 'react'
-import ChatWindow from './components/ChatWindow'
+import LlmPage from './pages/LlmPage'
 
 function App() {
-   return (
-    <div style={{ padding: 20 }}>
-      <ChatWindow />
+  return (
+    <div style={{ minHeight: '100vh' }}>
+      <LlmPage />
     </div>
   )
 }

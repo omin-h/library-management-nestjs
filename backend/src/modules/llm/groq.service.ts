@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import { Injectable, Logger } from '@nestjs/common';
 import Groq from 'groq-sdk';
 
@@ -7,8 +10,17 @@ export class GroqService {
   private groq: Groq;
 
   constructor() {
+    const key = process.env.GROQ_API_KEY;
+    if (!key) {
+      this.logger.error(
+        'GROQ_API_KEY is missing. Set GROQ_API_KEY in backend/.env or environment variables.'
+      );
+      throw new Error('Missing GROQ_API_KEY environment variable');
+    }
+
+    // instantiate with validated key
     this.groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY,
+      apiKey: key,
     });
   }
 
